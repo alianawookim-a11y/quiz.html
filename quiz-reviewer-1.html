@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Online Quiz &amp; Reviewer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=Merriweather:wght@700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+:root{
+  --navy-1:#0b1530;
+  --navy-2:#14224a;
+  --navy-3:#1b2c5c;
+  --blue:#3b6fe0;
+  --blue-dark:#2952b3;
+  --purple:#7c5cf0;
+  --purple-dark:#5f3fe0;
+  --green:#17a673;
+  --green-dark:#0f8a5f;
+  --bg:#eef2fb;
+  --ink:#101a33;
+  --ink-soft:#5b6784;
+  --card-line:#e4e9f5;
+  --radius-lg:22px;
+  --radius-md:14px;
+  --shadow:0 10px 30px rgba(20,34,74,0.10);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:'Inter',Arial,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  min-height:100vh;
+}
+h1,h2,h3{font-family:'Poppins',Arial,sans-serif;margin:0;}
+button{font-family:'Inter',Arial,sans-serif;}
+
+.app{
+  display:flex;
+  min-height:100vh;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  width:250px;
+  flex-shrink:0;
+  background:linear-gradient(180deg,var(--navy-2),var(--navy-1));
+  color:#dfe6ff;
+  padding:26px 20px;
+  display:flex;
+  flex-direction:column;
+  position:sticky;
+  top:0;
+  height:100vh;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:0 4px 26px 4px;
+  font-family:'Poppins',Arial,sans-serif;
+  font-weight:700;
+  font-size:15.5px;
+  line-height:1.25;
+}
+.brand .logo-badge{
+  width:38px;height:38px;border-radius:11px;
+  background:linear-gradient(135deg,var(--blue),var(--purple));
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;
+}
+.nav{display:flex;flex-direction:column;gap:6px;margin-top:6px;}
+.nav-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 14px;
+  border-radius:12px;
+  color:#b9c3e6;
+  text-decoration:none;
+  font-size:15px;
+  font-weight:500;
+  cursor:pointer;
+  border:none;background:none;
+  width:100%;text-align:left;
+  transition:background .15s, color .15s;
+}
+.nav-item .ico{font-size:17px;width:20px;text-align:center;}
+.nav-item:hover{background:rgba(255,255,255,0.06);color:#fff;}
+.nav-item.active{
+  background:linear-gradient(90deg,var(--blue),var(--blue-dark));
+  color:#fff;
+  box-shadow:0 6px 16px rgba(59,111,224,0.35);
+}
+.sidebar-footer{
+  margin-top:auto;
+  padding-top:20px;
+  display:flex;align-items:flex-end;justify-content:space-between;
+  gap:10px;
+}
+.sidebar-quote{
+  font-size:11.5px;
+  color:#8791b8;
+  font-style:italic;
+  line-height:1.4;
+  max-width:150px;
+}
+
+/* ===== MAIN ===== */
+.main{flex:1;min-width:0;display:flex;flex-direction:column;}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 34px;
+  background:rgba(255,255,255,0.6);
+  backdrop-filter:blur(6px);
+  border-bottom:1px solid var(--card-line);
+  position:sticky;top:0;z-index:5;
+}
+.topbar-title{
+  display:flex;align-items:center;gap:10px;
+  font-weight:700;font-size:16px;color:var(--ink);
+}
+.topbar-title .ico{font-size:18px;}
+.topbar-right{display:flex;align-items:center;gap:16px;}
+.topbar-link{
+  display:flex;align-items:center;gap:6px;
+  color:var(--ink);text-decoration:none;font-weight:600;font-size:14.5px;
+  background:none;border:none;cursor:pointer;
+}
+.avatar{
+  width:34px;height:34px;border-radius:50%;
+  background:linear-gradient(135deg,var(--blue),var(--purple));
+  display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;
+}
+
+.view{display:none;padding:32px 34px 60px 34px;}
+.view.active{display:block;}
+
+/* ===== HOME ===== */
+.hero{
+  background:linear-gradient(120deg,#dfeaff 0%,#e9e4ff 100%);
+  border-radius:var(--radius-lg);
+  padding:44px 40px;
+  position:relative;
+  overflow:hidden;
+  margin-bottom:26px;
+}
+.hero .eyebrow{
+  color:var(--blue-dark);font-weight:700;font-size:13px;letter-spacing:.03em;margin-bottom:8px;
+}
+.hero h1{font-size:34px;font-weight:800;color:var(--ink);margin-bottom:12px;}
+.hero p{font-size:15.5px;color:var(--ink-soft);max-width:440px;line-height:1.6;margin-bottom:6px;}
+.hero .tagline{font-weight:700;color:var(--purple-dark);}
+.hero-art{position:absolute;right:40px;top:50%;transform:translateY(-50%);font-size:90px;opacity:.9;}
+@media(max-width:820px){.hero-art{display:none;}}
+
+.feature-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:6px;
+}
+@media(max-width:900px){.feature-grid{grid-template-columns:1fr;}}
+.feature-card{
+  border-radius:var(--radius-lg);
+  padding:24px;
+  box-shadow:var(--shadow);
+}
+.feature-card.blue{background:#e9f0ff;}
+.feature-card.purple{background:#f1ecff;}
+.feature-card.green{background:#e6f7ef;}
+.feature-icon{
+  width:46px;height:46px;border-radius:13px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:21px;color:#fff;margin-bottom:14px;
+}
+.feature-card.blue .feature-icon{background:var(--blue);}
+.feature-card.purple .feature-icon{background:var(--purple);}
+.feature-card.green .feature-icon{background:var(--green);}
+.feature-card h3{font-size:18px;margin-bottom:6px;}
+.feature-card p{font-size:13.6px;color:var(--ink-soft);line-height:1.5;margin-bottom:18px;min-height:40px;}
+.feature-btn{
+  border:none;border-radius:11px;padding:11px 16px;
+  font-weight:600;font-size:14px;color:#fff;cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.feature-card.blue .feature-btn{background:var(--blue);}
+.feature-card.purple .feature-btn{background:var(--purple);}
+.feature-card.green .feature-btn{background:var(--green);}
+.feature-btn:hover{filter:brightness(0.94);}
+
+/* ===== CARD (generic) ===== */
+.panel{
+  background:#fff;border-radius:var(--radius-lg);
+  padding:28px;box-shadow:var(--shadow);
+  border:1px solid var(--card-line);
+}
+.panel-head{display:flex;align-items:center;gap:14px;margin-bottom:22px;}
+.panel-head .ico-badge{
+  width:42px;height:42px;border-radius:12px;color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;
+}
+.panel-head h2{font-size:20px;margin-bottom:3px;}
+.panel-head p{font-size:13.5px;color:var(--ink-soft);}
+
+/* ===== UPLOAD ===== */
+.dropzone{
+  border:2px dashed #c7d3ef;border-radius:16px;
+  padding:46px 20px;text-align:center;
+  background:#f7f9ff;cursor:pointer;
+  transition:border-color .15s, background .15s;
+}
+.dropzone.dragover{border-color:var(--blue);background:#eaf1ff;}
+.dropzone .cloud{font-size:34px;color:var(--blue);margin-bottom:10px;}
+.dropzone .dz-text{color:var(--ink-soft);font-size:14.5px;margin-bottom:14px;}
+.choose-btn{
+  background:var(--blue);color:#fff;border:none;border-radius:10px;
+  padding:11px 20px;font-weight:600;font-size:14px;cursor:pointer;
+}
+.choose-btn:hover{background:var(--blue-dark);}
+.filename-row{
+  margin-top:14px;font-size:13.5px;color:var(--ink-soft);
+  display:flex;align-items:center;gap:8px;
+}
+.primary-btn{
+  width:100%;margin-top:20px;
+  background:var(--blue);color:#fff;border:none;border-radius:12px;
+  padding:15px;font-size:15.5px;font-weight:700;cursor:pointer;
+}
+.primary-btn:hover{background:var(--blue-dark);}
+.primary-btn:disabled{background:#aebee0;cursor:not-allowed;}
+
+/* ===== REVIEWER ===== */
+.reviewer-layout{display:grid;grid-template-columns:1fr 220px;gap:20px;}
+@media(max-width:820px){.reviewer-layout{grid-template-columns:1fr;}}
+.reviewer-pagebar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.reviewer-pagebar .lesson-title{font-weight:700;font-size:15px;}
+.reviewer-pagebar .page-indicator{font-size:13px;color:var(--ink-soft);display:flex;align-items:center;gap:10px;}
+.page-arrow{
+  background:#f0f3fb;border:none;border-radius:8px;width:26px;height:26px;
+  cursor:pointer;color:var(--ink);
+}
+.page-arrow:disabled{opacity:.35;cursor:not-allowed;}
+.lesson-content{
+  min-height:320px;max-height:460px;overflow-y:auto;
+  font-size:15px;line-height:1.75;color:#28304a;
+  white-space:pre-wrap;
+}
+.lesson-content h4{font-size:15.5px;margin:14px 0 6px 0;}
+.lesson-content ul{margin:6px 0 14px 20px;padding:0;}
+.side-note{
+  background:linear-gradient(160deg,#eef3ff,#f4eeff);
+  border-radius:var(--radius-lg);padding:22px;
+  text-align:center;font-family:'Poppins',cursive,Arial,sans-serif;
+  color:var(--blue-dark);font-weight:600;font-size:15px;line-height:1.5;
+}
+.side-note .plant{font-size:34px;margin-top:14px;}
+
+/* ===== QUIZ ===== */
+.quiz-topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.quiz-topbar .q-count{font-size:13.5px;color:var(--ink-soft);font-weight:600;}
+.progress-track{
+  width:140px;height:8px;background:#eef1fa;border-radius:6px;overflow:hidden;margin-left:10px;
+}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));width:0%;transition:width .25s;}
+.progress-wrap{display:flex;align-items:center;}
+.progress-pct{font-size:13px;color:var(--ink-soft);font-weight:700;margin-left:8px;}
+.question-text{font-size:19px;font-weight:700;line-height:1.45;margin-bottom:20px;}
+.option{
+  display:flex;align-items:center;gap:12px;
+  background:#f6f7fc;border:1.5px solid transparent;border-radius:12px;
+  padding:14px 16px;margin-bottom:10px;cursor:pointer;font-size:14.8px;
+  transition:background .15s,border-color .15s;
+}
+.option:hover{background:#eef1fb;}
+.option.selected{border-color:var(--blue);background:#e9f0ff;font-weight:600;}
+.option input{accent-color:var(--blue);width:17px;height:17px;flex-shrink:0;}
+.quiz-nav{display:flex;justify-content:space-between;margin-top:24px;gap:12px;}
+.btn{
+  border:none;border-radius:11px;padding:12px 20px;font-size:14.5px;font-weight:700;
+  cursor:pointer;display:inline-flex;align-items:center;gap:7px;
+}
+.btn-outline{background:#f0f3fb;color:var(--ink);}
+.btn-outline:hover{background:#e6ebf7;}
+.btn-primary{background:var(--blue);color:#fff;}
+.btn-primary:hover{background:var(--blue-dark);}
+.btn-primary:disabled{background:#aebbdf;cursor:not-allowed;}
+.btn-green{background:var(--green);color:#fff;}
+.btn-green:hover{background:var(--green-dark);}
+.btn-block{width:100%;justify-content:center;margin-top:12px;}
+.error-box{text-align:center;padding:30px 10px;}
+.error-box .em{font-size:34px;margin-bottom:10px;}
+.error-box h3{margin-bottom:8px;font-size:19px;}
+.error-box p{color:var(--ink-soft);font-size:14px;margin-bottom:18px;}
+
+/* ===== RESULTS ===== */
+.results-panel{text-align:center;max-width:440px;margin:0 auto;}
+.score-ring-wrap{display:flex;justify-content:center;margin:10px 0 6px 0;}
+.score-ring-num{font-size:30px;font-weight:800;fill:var(--ink);}
+.score-detail{margin-top:4px;font-size:13.5px;color:var(--ink-soft);font-weight:600;}
+.score-fraction{font-size:22px;font-weight:800;margin-top:2px;}
+.score-msg{
+  margin-top:18px;border-radius:14px;padding:14px 18px;text-align:left;
+  display:flex;gap:10px;align-items:flex-start;font-size:14px;
+}
+.score-msg.good{background:#e6f7ef;color:#0f6b46;}
+.score-msg.mid{background:#fff6e0;color:#8a6300;}
+.score-msg.low{background:#ffeaea;color:#a11c1c;}
+.score-msg .star{font-size:18px;}
+.results-actions{display:flex;flex-direction:column;gap:10px;margin-top:22px;}
+
+.container-narrow{max-width:760px;margin:0 auto;}
+
+::-webkit-scrollbar{width:8px;}
+::-webkit-scrollbar-thumb{background:#d3daf1;border-radius:8px;}
+
+/* ===== WORD SCRAMBLE (quiz) ===== */
+.sc-wrap{max-width:560px;margin:0 auto;border-radius:20px;overflow:hidden;background:#fdfdf8;box-shadow:var(--shadow);border:1px solid var(--card-line);}
+.sc-head{background:linear-gradient(100deg,#1e1450 0%,#4a1f9a 100%);color:#fff;padding:20px 22px;display:flex;align-items:center;justify-content:space-between;}
+.sc-title{font-family:'Merriweather',Georgia,serif;font-weight:700;font-size:25px;line-height:1.1;}
+.sc-title span{color:#fbbf24;}
+.sc-sub{font-size:13px;letter-spacing:.06em;color:#c9bdf0;margin-top:6px;text-transform:uppercase;}
+.sc-timer{background:rgba(255,255,255,.16);border-radius:999px;padding:8px 18px;font-weight:700;font-size:19px;font-variant-numeric:tabular-nums;}
+.sc-body{padding:20px 20px 26px;}
+.sc-meta{display:flex;justify-content:space-between;font-size:13.5px;letter-spacing:.05em;color:#64708a;font-weight:500;text-transform:uppercase;margin-bottom:10px;}
+.sc-bar{height:6px;background:#e7eaf0;border-radius:99px;overflow:hidden;margin-bottom:22px;}
+.sc-bar i{display:block;height:100%;background:linear-gradient(90deg,#6d3fd6,#fbbf24);border-radius:99px;transition:width .3s;}
+.sc-card{background:#fff;border:1px solid #dfe4ee;border-radius:24px;padding:28px 18px 30px;}
+.sc-hint-title{text-align:center;font-size:13px;letter-spacing:.09em;font-weight:700;color:#5b6784;text-transform:uppercase;margin-bottom:18px;}
+.sc-tray{background:#fef3b8;border:2.5px solid #f4c430;border-radius:16px;padding:22px 10px;}
+.sc-row{position:relative;display:flex;justify-content:center;gap:8px;touch-action:none;}
+.sc-tile{flex:0 1 64px;min-width:0;aspect-ratio:1/1.08;display:flex;align-items:center;justify-content:center;background:#fff;border:1.5px solid #cfd5e6;border-bottom:5px solid #4b3bb5;border-radius:12px;font-family:'Merriweather',Georgia,serif;font-weight:700;font-size:clamp(15px,5.6vw,28px);color:#1a1a3a;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none;box-shadow:0 2px 4px rgba(30,20,80,.12);transition:transform .15s,background .2s;}
+.sc-row.long .sc-tile{font-size:clamp(12px,4vw,22px);}
+.sc-tile.dragging{cursor:grabbing;z-index:5;box-shadow:0 10px 18px rgba(30,20,80,.28);transition:none;}
+.sc-tile.locked{background:#dcfce7;border-color:#86d6a3;border-bottom-color:#16a34a;cursor:default;}
+.sc-row.correct .sc-tile{background:#bbf7d0;border-bottom-color:#16a34a;animation:scpop .5s;}
+@keyframes scpop{40%{transform:translateY(-8px);}}
+.sc-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:20px;}
+.sc-btn{background:#fff;border:1.5px solid #d3dbe9;border-radius:13px;padding:14px 6px;font-size:15px;font-weight:700;color:#4a5878;cursor:pointer;}
+.sc-btn.hint{border-color:#1a1a3a;color:#1a1a3a;}
+.sc-btn:disabled{opacity:.45;cursor:default;}
+.sc-btn:not(:disabled):active{transform:scale(.97);}
+.sc-hints-left{text-align:center;font-size:13.5px;color:#5b6784;margin:14px 0 16px;}
+.sc-def{background:#fef3c7;border:1.5px solid #f4c430;border-radius:13px;padding:16px 18px;font-size:16px;line-height:1.5;color:#6b3a10;}
+.sc-def b{color:#7a2e0e;}
+.sc-note{text-align:center;font-size:14px;font-weight:600;color:#b45309;margin-top:12px;min-height:18px;}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo-badge">📖</div>
+      <div>Online Quiz<br>&amp; Reviewer</div>
+    </div>
+    <nav class="nav">
+      <button class="nav-item active" data-view="home" onclick="goTo('home')"><span class="ico">🏠</span>Home</button>
+      <button class="nav-item" data-view="upload" onclick="goTo('upload')"><span class="ico">⬆️</span>Upload Lesson</button>
+      <button class="nav-item" data-view="reviewer" onclick="goTo('reviewer')"><span class="ico">📘</span>Reviewer</button>
+      <button class="nav-item" data-view="quiz" onclick="goTo('quiz')"><span class="ico">📝</span>Quiz</button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-quote">"Small steps every day lead to big results."</div>
+      <div style="font-size:22px;">🌿</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-title"><span class="ico" id="topIco">🏠</span><span id="topTitle">Home</span></div>
+      <div class="topbar-right">
+        <button class="topbar-link" id="topHomeLink" style="display:none;" onclick="goTo('home')">🏠 Home</button>
+        <div class="avatar">🙂</div>
+      </div>
+    </header>
+
+    <!-- HOME -->
+    <section class="view active" id="view-home">
+      <div class="hero">
+        <div class="eyebrow">WELCOME TO</div>
+        <h1>Online Quiz &amp; Reviewer</h1>
+        <p>Study your lessons, review the important parts, and test your knowledge.</p>
+        <p class="tagline">Your goals. Our platform.</p>
+        <div class="hero-art">📚💻</div>
+      </div>
+
+      <div class="feature-grid">
+        <div class="feature-card blue">
+          <div class="feature-icon">⬆️</div>
+          <h3>Upload Lesson</h3>
+          <p>Upload a PDF lesson to create your reviewer and quiz.</p>
+          <button class="feature-btn" onclick="goTo('upload')">Choose File →</button>
+        </div>
+        <div class="feature-card purple">
+          <div class="feature-icon">📘</div>
+          <h3>Reviewer</h3>
+          <p>Review your uploaded lesson before taking the quiz.</p>
+          <button class="feature-btn" onclick="goTo('reviewer')">Open Reviewer →</button>
+        </div>
+        <div class="feature-card green">
+          <div class="feature-icon">📝</div>
+          <h3>Quiz</h3>
+          <p>Test what you learned from your lesson.</p>
+          <button class="feature-btn" onclick="goTo('quiz')">Take Quiz →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- UPLOAD -->
+    <section class="view" id="view-upload">
+      <div class="container-narrow">
+        <div class="panel">
+          <div class="panel-head">
+            <div class="ico-badge" style="background:var(--blue);">⬆️</div>
+            <div><h2>Upload Lesson</h2><p>Upload a PDF lesson to create your reviewer and quiz.</p></div>
+          </div>
+
+          <div class="dropzone" id="dropzone">
+            <div class="cloud">☁️</div>
+            <div class="dz-text">Drag and drop your PDF file here<br>or</div>
+            <button class="choose-btn" type="button" onclick="document.getElementById('fileInput').click()">Choose File</button>
+            <input type="file" id="fileInput" accept="application/pdf" style="display:none;">
+          </div>
+          <div class="filename-row" id="filenameRow">📄 No file selected.</div>
+
+          <button class="primary-btn" id="uploadBtn" onclick="processUpload()">Upload Lesson</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- REVIEWER -->
+    <section class="view" id="view-reviewer">
+      <div class="reviewer-layout">
+        <div class="panel">
+          <div class="panel-head">
+            <div class="ico-badge" style="background:var(--purple);">📘</div>
+            <div><h2>Reviewer</h2><p>Review your uploaded lesson before taking the quiz.</p></div>
+          </div>
+
+          <div id="reviewerBody"></div>
+        </div>
+        <div class="side-note">
+          Read.<br>Understand.<br>Remember.
+          <div class="plant">🪴</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUIZ -->
+    <section class="view" id="view-quiz">
+      <div id="quizBody"></div>
+    </section>
+
+    <!-- RESULTS -->
+    <section class="view" id="view-results">
+      <div class="container-narrow">
+        <div class="panel results-panel">
+          <div class="panel-head" style="justify-content:center;">
+            <div class="ico-badge" style="background:#f5a623;">🏆</div>
+            <div style="text-align:left;"><h2>Quiz Results</h2><p>Here is your quiz result.</p></div>
+          </div>
+          <div class="score-ring-wrap">
+            <svg width="150" height="150" viewBox="0 0 150 150">
+              <circle cx="75" cy="75" r="62" stroke="#eef1fa" stroke-width="14" fill="none"/>
+              <circle id="scoreArc" cx="75" cy="75" r="62" stroke="url(#grad)" stroke-width="14" fill="none"
+                stroke-linecap="round" stroke-dasharray="389.6" stroke-dashoffset="389.6"
+                transform="rotate(-90 75 75)"/>
+              <defs>
+                <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#3b6fe0"/>
+                  <stop offset="100%" stop-color="#17a673"/>
+                </linearGradient>
+              </defs>
+              <text id="scorePctText" x="75" y="82" text-anchor="middle" class="score-ring-num">0%</text>
+            </svg>
+          </div>
+          <div class="score-detail">Your Score</div>
+          <div class="score-fraction" id="scoreFraction">0 / 0</div>
+
+          <div class="score-msg good" id="scoreMsg">
+            <span class="star">⭐</span>
+            <span id="scoreMsgText">Great job! You did well! Keep it up!</span>
+          </div>
+
+          <div class="results-actions">
+            <button class="btn btn-primary btn-block" onclick="tryAgain()">🔄 Try Again</button>
+            <button class="btn btn-outline btn-block" onclick="goTo('reviewer')">📘 Back to Reviewer</button>
+            <button class="btn btn-outline btn-block" onclick="goTo('home')">🏠 Back Home</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+if (window['pdfjsLib']) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
+/* ---------------- STATE ---------------- */
+let state = {
+  lessonTitle: "",
+  lessonPages: [],
+  pageIndex: 0,
+  questions: [],
+  qIndex: 0,
+  answers: {}
+};
+let selectedFile = null;
+
+/* ---------------- NAV ---------------- */
+const viewMeta = {
+  home:     { title: "Home", icon: "🏠" },
+  upload:   { title: "Upload Lesson", icon: "⬆️" },
+  reviewer: { title: "Reviewer", icon: "📘" },
+  quiz:     { title: "Take Quiz", icon: "📝" },
+  results:  { title: "Quiz Results", icon: "🏆" }
+};
+
+function goTo(view){
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+  document.getElementById("view-" + view).classList.add("active");
+
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+  const navBtn = document.querySelector('.nav-item[data-view="' + view + '"]');
+  if (navBtn) navBtn.classList.add("active");
+
+  const meta = viewMeta[view] || { title: view, icon: "•" };
+  document.getElementById("topTitle").textContent = meta.title;
+  document.getElementById("topIco").textContent = meta.icon;
+  document.getElementById("topHomeLink").style.display = (view === "home") ? "none" : "inline-flex";
+
+  if (view === "reviewer") renderReviewer();
+  if (view !== "quiz") stopTimer();
+  if (view === "quiz") renderQuiz();
+}
+
+/* ---------------- UPLOAD ---------------- */
+const dropzone = document.getElementById("dropzone");
+const fileInput = document.getElementById("fileInput");
+
+dropzone.addEventListener("click", () => fileInput.click());
+dropzone.addEventListener("dragover", e => { e.preventDefault(); dropzone.classList.add("dragover"); });
+dropzone.addEventListener("dragleave", () => dropzone.classList.remove("dragover"));
+dropzone.addEventListener("drop", e => {
+  e.preventDefault();
+  dropzone.classList.remove("dragover");
+  if (e.dataTransfer.files && e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener("change", () => {
+  if (fileInput.files && fileInput.files[0]) setFile(fileInput.files[0]);
+});
+
+function setFile(file){
+  if (file.type !== "application/pdf") {
+    alert("Please choose a PDF file.");
+    return;
+  }
+  selectedFile = file;
+  document.getElementById("filenameRow").textContent = "📄 " + file.name;
+}
+
+async function processUpload(){
+  if (!selectedFile) { alert("Please choose a PDF file first."); return; }
+  const btn = document.getElementById("uploadBtn");
+  btn.disabled = true;
+  btn.textContent = "Processing...";
+
+  try {
+    const text = await extractPdfText(selectedFile);
+    if (!text || text.trim().length < 30) {
+      alert("Couldn't find readable text in this PDF. Try another file.");
+      btn.disabled = false; btn.textContent = "Upload Lesson";
+      return;
+    }
+    state.lessonTitle = selectedFile.name.replace(/\.pdf$/i, "");
+    state.lessonPages = paginateText(text);
+    state.pageIndex = 0;
+    state.questions = generateQuiz(text, 10);
+    state.qIndex = 0;
+    state.answers = {};
+    state.game = null; stopTimer();
+
+    btn.disabled = false;
+    btn.textContent = "Upload Lesson";
+    goTo("reviewer");
+  } catch (err) {
+    console.error(err);
+    alert("Something went wrong reading that PDF. Please try again.");
+    btn.disabled = false;
+    btn.textContent = "Upload Lesson";
+  }
+}
+
+async function extractPdfText(file){
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  let full = "";
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    const pageText = content.items.map(it => it.str).join(" ");
+    full += pageText + "\n\n";
+  }
+  return full;
+}
+
+function paginateText(text){
+  const clean = text.replace(/[ \t]+/g, " ").replace(/\n{3,}/g, "\n\n").trim();
+  const chunkSize = 700;
+  const pages = [];
+  let remaining = clean;
+  while (remaining.length > 0) {
+    if (remaining.length <= chunkSize) { pages.push(remaining.trim()); break; }
+    let cut = remaining.lastIndexOf(". ", chunkSize);
+    if (cut < 200) cut = chunkSize;
+    pages.push(remaining.slice(0, cut + 1).trim());
+    remaining = remaining.slice(cut + 1);
+  }
+  return pages.length ? pages : [clean];
+}
+
+/* ---------------- QUIZ GENERATION ---------------- */
+const STOPWORDS = new Set(["the","and","that","with","this","from","have","are","for","was","were","which","their","also","they","into","such","when","where","than","then","these","those","its","it's","can","may","will","not","but","you","your","our","has","had","been","being","some","more","most","other","only","over","after","before","about","while","because","used","use","using"]);
+
+function generateQuiz(text, count){
+  const clean = text.replace(/\s+/g, " ");
+  const extra = new Set(["there","would","could","should","these","those","their","other","about","which","where","while","first","second","third","every","under","between","through","during","within","without"]);
+  const sentences = clean.split(/(?<=[.?!])\s+(?=[A-Z0-9])/).map(x => x.trim()).filter(x => x.length >= 40 && x.length <= 220);
+  const freq = {};
+  (clean.match(/\b[A-Za-z]{5,10}\b/g) || []).forEach(w => { const k = w.toLowerCase(); freq[k] = (freq[k] || 0) + 1; });
+  const words = Object.keys(freq).filter(w => !STOPWORDS.has(w) && !extra.has(w));
+  const ranked = shuffle(words.sort((x, y) => freq[y] - freq[x]).slice(0, 120));
+  const puzzles = [];
+  for (const w of ranked) {
+    if (puzzles.length >= count) break;
+    const re = new RegExp("\\b" + w + "\\b", "i");
+    const sent = shuffle(sentences).find(x => re.test(x));
+    if (!sent) continue;
+    puzzles.push({ word: w.toUpperCase(), clue: sent.replace(new RegExp("\\b" + w + "\\b", "gi"), "_____") });
+  }
+  return puzzles;
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/* ---------------- REVIEWER RENDER ---------------- */
+function renderReviewer(){
+  const body = document.getElementById("reviewerBody");
+  if (!state.lessonPages.length) {
+    body.innerHTML = `
+      <div class="error-box">
+        <div class="em">📄</div>
+        <h3>No lesson uploaded yet</h3>
+        <p>Upload a PDF lesson first and we'll build your reviewer automatically.</p>
+        <button class="btn btn-primary" onclick="goTo('upload')">⬆️ Upload Lesson</button>
+      </div>`;
+    return;
+  }
+
+  const total = state.lessonPages.length;
+  const idx = state.pageIndex;
+  const pageText = state.lessonPages[idx];
+
+  body.innerHTML = `
+    <div class="reviewer-pagebar">
+      <div class="lesson-title">${escapeHTML(state.lessonTitle || "Lesson")}</div>
+      <div class="page-indicator">
+        Page ${idx + 1} / ${total}
+        <button class="page-arrow" ${idx === 0 ? "disabled" : ""} onclick="changePage(-1)">‹</button>
+        <button class="page-arrow" ${idx === total - 1 ? "disabled" : ""} onclick="changePage(1)">›</button>
+      </div>
+    </div>
+    <div class="lesson-content">${escapeHTML(pageText)}</div>
+    <div class="quiz-nav">
+      <button class="btn btn-outline" ${idx === 0 ? "disabled" : ""} onclick="changePage(-1)">← Previous</button>
+      <button class="btn btn-primary" ${idx === total - 1 ? "disabled" : ""} onclick="changePage(1)">Next →</button>
+    </div>
+  `;
+}
+
+function changePage(delta){
+  state.pageIndex = Math.min(state.lessonPages.length - 1, Math.max(0, state.pageIndex + delta));
+  renderReviewer();
+}
+
+/* ---------------- WORD SCRAMBLE GAME ---------------- */
+let scTimerId = null;
+function fmtTime(sec){ return Math.floor(sec/60) + ":" + String(sec%60).padStart(2,"0"); }
+function stopTimer(){ clearInterval(scTimerId); scTimerId = null; }
+function startTimer(){
+  stopTimer();
+  scTimerId = setInterval(() => {
+    const g = state.game; if (!g) return;
+    g.seconds++;
+    const t = document.getElementById("scTimer"); if (t) t.textContent = fmtTime(g.seconds);
+  }, 1000);
+}
+
+function scramble(word){
+  let a;
+  do { a = shuffle(word.split("")); } while (a.join("") === word && new Set(word).size > 1);
+  return a;
+}
+
+function initGame(){
+  state.puzzleNo = (state.puzzleNo || 0) + 1;
+  state.game = { idx: 0, solved: 0, passed: 0, seconds: 0, busy: false, note: "" };
+  loadPuzzle();
+}
+function loadPuzzle(){
+  const g = state.game, p = state.questions[g.idx];
+  g.hints = 3; g.busy = false;
+  g.tiles = scramble(p.word).map((ch, i) => ({ id: i, ch, locked: false }));
+}
+
+function renderQuiz(){
+  const body = document.getElementById("quizBody");
+  if (!state.questions.length) {
+    stopTimer();
+    body.innerHTML = `
+      <div class="panel"><div class="error-box">
+        <div class="em">🔤</div>
+        <h3>No puzzles yet</h3>
+        <p>Upload a PDF lesson first and we'll turn its key words into scramble puzzles.</p>
+        <button class="btn btn-primary" onclick="goTo('upload')">⬆️ Upload Lesson</button>
+      </div></div>`;
+    return;
+  }
+  if (!state.game) initGame();
+  const g = state.game, total = state.questions.length, p = state.questions[g.idx];
+  const pct = Math.round((g.idx / total) * 100);
+  body.innerHTML = `
+    <div class="sc-wrap">
+      <div class="sc-head">
+        <div>
+          <div class="sc-title">Word <span>Scramble</span></div>
+          <div class="sc-sub">Puzzle #${state.puzzleNo}</div>
+        </div>
+        <div class="sc-timer" id="scTimer">${fmtTime(g.seconds)}</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-meta"><span>Word ${g.idx + 1} of ${total}</span><span>${g.solved} solved</span></div>
+        <div class="sc-bar"><i style="width:${pct}%"></i></div>
+        <div class="sc-card">
+          <div class="sc-hint-title">Drag to rearrange the letters</div>
+          <div class="sc-tray">
+            <div class="sc-row ${p.word.length > 7 ? "long" : ""}" id="scRow">
+              ${g.tiles.map(t => `<div class="sc-tile ${t.locked ? "locked" : ""}" data-id="${t.id}">${t.ch}</div>`).join("")}
+            </div>
+          </div>
+          <div class="sc-actions">
+            <button class="sc-btn hint" onclick="useHint()" ${g.hints === 0 || g.busy ? "disabled" : ""}>💡 Hint</button>
+            <button class="sc-btn" onclick="shuffleTiles()" ${g.busy ? "disabled" : ""}>🔀 Shuffle</button>
+            <button class="sc-btn" onclick="passWord()" ${g.busy ? "disabled" : ""}>Pass →</button>
+          </div>
+          <div class="sc-hints-left">${g.hints} hint${g.hints === 1 ? "" : "s"} remaining — snaps 1st, 2nd &amp; last letter</div>
+          <div class="sc-def"><b>Clue:</b> ${escapeHTML(p.clue)}</div>
+          <div class="sc-note">${escapeHTML(g.note)}</div>
+        </div>
+      </div>
+    </div>`;
+  g.note = "";
+  document.querySelectorAll("#scRow .sc-tile").forEach(el => {
+    if (!el.classList.contains("locked")) el.addEventListener("pointerdown", startDrag);
+  });
+  if (!scTimerId) startTimer();
+}
+
+function startDrag(e){
+  const g = state.game; if (g.busy) return;
+  e.preventDefault();
+  const el = e.currentTarget, row = document.getElementById("scRow");
+  el.setPointerCapture(e.pointerId);
+  el.classList.add("dragging");
+  const startX = e.clientX, origLeft = el.offsetLeft;
+  const move = ev => {
+    const desired = origLeft + (ev.clientX - startX);
+    const center = desired + el.offsetWidth / 2;
+    const others = [...row.children].filter(k => k !== el && !k.classList.contains("locked"));
+    const slot = others.filter(k => k.offsetLeft + k.offsetWidth / 2 < center).length;
+    const cur = [...row.children].filter(k => !k.classList.contains("locked")).indexOf(el);
+    if (slot !== cur) {
+      if (others[slot]) row.insertBefore(el, others[slot]); else others[others.length - 1].after(el);
+    }
+    el.style.transform = "translateX(" + (desired - el.offsetLeft) + "px) scale(1.08)";
+  };
+  const up = () => {
+    el.removeEventListener("pointermove", move);
+    el.removeEventListener("pointerup", up);
+    el.removeEventListener("pointercancel", up);
+    el.classList.remove("dragging");
+    el.style.transform = "";
+    const byId = {}; g.tiles.forEach(t => byId[t.id] = t);
+    g.tiles = [...row.children].map(k => byId[k.dataset.id]);
+    checkSolved();
+  };
+  el.addEventListener("pointermove", move);
+  el.addEventListener("pointerup", up);
+  el.addEventListener("pointercancel", up);
+}
+
+function shuffleTiles(){
+  const g = state.game; if (g.busy) return;
+  const free = g.tiles.filter(t => !t.locked), shuffled = shuffle(free);
+  let k = 0;
+  g.tiles = g.tiles.map(t => t.locked ? t : shuffled[k++]);
+  renderQuiz();
+  checkSolved();
+}
+
+function useHint(){
+  const g = state.game; if (g.busy || g.hints === 0) return;
+  const word = state.questions[g.idx].word;
+  const used = 3 - g.hints;                       // 0 -> 1st, 1 -> 2nd, 2 -> last
+  const pos = used === 0 ? 0 : used === 1 ? 1 : word.length - 1;
+  const from = g.tiles.findIndex((t, i) => !t.locked && t.ch === word[pos]);
+  if (from === -1) return;
+  [g.tiles[pos], g.tiles[from]] = [g.tiles[from], g.tiles[pos]];
+  g.tiles[pos].locked = true;
+  g.hints--;
+  renderQuiz();
+  checkSolved();
+}
+
+function checkSolved(){
+  const g = state.game, word = state.questions[g.idx].word;
+  if (g.tiles.map(t => t.ch).join("") !== word) return;
+  g.busy = true; g.solved++;
+  const row = document.getElementById("scRow");
+  if (row) row.classList.add("correct");
+  document.querySelectorAll(".sc-btn").forEach(b => b.disabled = true);
+  setTimeout(nextWord, 900);
+}
+
+function passWord(){
+  const g = state.game; if (g.busy) return;
+  g.passed++;
+  g.note = "Skipped — the word was " + state.questions[g.idx].word;
+  nextWord(true);
+}
+
+function nextWord(){
+  const g = state.game, total = state.questions.length;
+  const note = g.note;
+  if (g.idx >= total - 1) { stopTimer(); showResults(g.solved, total, g.seconds); return; }
+  g.idx++;
+  loadPuzzle();
+  g.note = note;
+  renderQuiz();
+}
+
+/* ---------------- RESULTS ---------------- */
+function showResults(score, total, secs){
+  const pct = total > 0 ? Math.round((score / total) * 100) : 0;
+  const circumference = 2 * Math.PI * 62;
+  const offset = circumference - (pct / 100) * circumference;
+
+  document.getElementById("scoreArc").style.strokeDasharray = circumference.toFixed(1);
+  document.getElementById("scoreArc").style.strokeDashoffset = offset.toFixed(1);
+  document.getElementById("scorePctText").textContent = pct + "%";
+  document.getElementById("scoreFraction").textContent = score + " / " + total + " solved" + (secs != null ? " · " + fmtTime(secs) : "");
+
+  const msgBox = document.getElementById("scoreMsg");
+  const msgText = document.getElementById("scoreMsgText");
+  msgBox.className = "score-msg";
+  if (pct >= 80) {
+    msgBox.classList.add("good");
+    msgText.textContent = "Great job! You did well! Keep it up!";
+  } else if (pct >= 50) {
+    msgBox.classList.add("mid");
+    msgText.textContent = "Good effort! Review the lesson again to sharpen your score.";
+  } else {
+    msgBox.classList.add("low");
+    msgText.textContent = "Keep practicing! Revisit the reviewer and try again.";
+  }
+
+  goTo("results");
+}
+
+function tryAgain(){
+  state.game = null;
+  goTo("quiz");
+}
+
+/* ---------------- UTIL ---------------- */
+function escapeHTML(text){
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+</script>
+</body>
+</html>
